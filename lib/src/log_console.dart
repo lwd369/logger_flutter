@@ -8,7 +8,7 @@ class LogConsole extends StatefulWidget {
 
   LogConsole({this.dark = false, this.showCloseButton = false});
 
-  static Future<void> open(BuildContext context, {bool dark}) async {
+  static Future<void> open(BuildContext context, {bool? dark}) async {
     var logConsole = LogConsole(
       showCloseButton: true,
       dark: dark ?? Theme.of(context).brightness == Brightness.dark,
@@ -24,7 +24,7 @@ class LogConsole extends StatefulWidget {
   }
 
   static void add(OutputEvent outputEvent, {int bufferSize = 20}) {
-    while (_outputEventBuffer.length >= (bufferSize ?? 1)) {
+    while (_outputEventBuffer.length >= bufferSize) {
       _outputEventBuffer.removeFirst();
     }
     _outputEventBuffer.add(outputEvent);
@@ -233,7 +233,7 @@ class _LogConsoleState extends State<LogConsole> {
             ),
           ),
           SizedBox(width: 20),
-          DropdownButton(
+          DropdownButton<Level>(
             value: _filterLevel,
             items: [
               DropdownMenuItem(
@@ -262,7 +262,7 @@ class _LogConsoleState extends State<LogConsole> {
               )
             ],
             onChanged: (value) {
-              _filterLevel = value;
+              _filterLevel = value!;
               _refreshFilter();
             },
           )
@@ -305,7 +305,7 @@ class LogBar extends StatelessWidget {
   final bool dark;
   final Widget child;
 
-  LogBar({this.dark, this.child});
+  LogBar({required this.dark, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -316,7 +316,7 @@ class LogBar extends StatelessWidget {
           boxShadow: [
             if (!dark)
               BoxShadow(
-                color: Colors.grey[400],
+                color: Colors.grey[400]!,
                 blurRadius: 3,
               ),
           ],
