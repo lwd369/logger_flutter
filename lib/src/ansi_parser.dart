@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 class AnsiParser {
@@ -7,14 +8,14 @@ class AnsiParser {
 
   AnsiParser(this.dark);
 
-  late Color foreground;
-  late Color background;
-  late List<TextSpan> spans;
+  Color? foreground;
+  Color? background;
+  List<TextSpan>? spans;
 
   void parse(String s) {
     spans = [];
     var state = TEXT;
-    late StringBuffer buffer;
+    StringBuffer? buffer;
     var text = StringBuffer();
     var code = 0;
     late List<int> codes;
@@ -35,7 +36,7 @@ class AnsiParser {
           break;
 
         case BRACKET:
-          buffer.write(c);
+          buffer!.write(c);
           if (c == '[') {
             state = CODE;
           } else {
@@ -45,7 +46,7 @@ class AnsiParser {
           break;
 
         case CODE:
-          buffer.write(c);
+          buffer!.write(c);
           var codeUnit = c.codeUnitAt(0);
           if (codeUnit >= 48 && codeUnit <= 57) {
             code = code * 10 + codeUnit - 48;
@@ -56,7 +57,7 @@ class AnsiParser {
             continue;
           } else {
             if (text.isNotEmpty) {
-              spans.add(createSpan(text.toString()));
+              spans!.add(createSpan(text.toString()));
               text.clear();
             }
             state = TEXT;
@@ -72,7 +73,7 @@ class AnsiParser {
       }
     }
 
-    spans.add(createSpan(text.toString()));
+    spans!.add(createSpan(text.toString()));
   }
 
   void handleCodes(List<int> codes) {
@@ -99,28 +100,33 @@ class AnsiParser {
     }
   }
 
-  Color getColor(int colorCode, bool foreground) {
+  Color? getColor(int colorCode, bool foreground) {
     switch (colorCode) {
-      case 12:
-        return dark ? Colors.lightBlue[300]! : Colors.indigo[700]!;
-      case 208:
-        return dark ? Colors.orange[300]! : Colors.orange[700]!;
-      case 196:
-        return dark ? Colors.red[300]! : Colors.red[700]!;
-      case 199:
-        return dark ? Colors.pink[300]! : Colors.pink[700]!;
-      default:
+      case 0:
         return foreground ? Colors.black : Colors.transparent;
+      case 12:
+        return dark ? Colors.lightBlue[300] : Colors.indigo[700];
+      case 208:
+        return dark ? Colors.orange[300] : Colors.orange[700];
+      case 196:
+        return dark ? Colors.red[300] : Colors.red[700];
+      case 199:
+        return dark ? Colors.pink[300] : Colors.pink[700];
     }
+    return foreground ? Colors.black : Colors.transparent;
   }
 
   TextSpan createSpan(String text) {
     return TextSpan(
-      text: text,
-      style: TextStyle(
-        color: foreground,
-        backgroundColor: background,
-      ),
-    );
+        text: text,
+        style: TextStyle(
+          color: foreground,
+          backgroundColor: background,
+        ),
+        recognizer: LongPressGestureRecognizer()
+          ..onLongPress = () {
+            // Clipboard.setData(ClipboardData(text: text));
+            // Toast.toast("Copy to paste board");
+          });
   }
 }
