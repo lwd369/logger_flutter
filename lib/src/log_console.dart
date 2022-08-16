@@ -30,6 +30,10 @@ class LogConsole extends StatefulWidget {
     _outputEventBuffer.add(outputEvent);
   }
 
+  static ListQueue<OutputEvent> getLogs() {
+    return _outputEventBuffer;
+  }
+
   @override
   _LogConsoleState createState() => _LogConsoleState();
 }
